@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluation Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Model Evaluation Dashboard</h1>
+        <p class="subtitle">Threshold comparison and test set performance</p>
+
+        <div class="metrics-grid">
+            <div class="card metric-highlight">
+                <h2>ROC-AUC</h2>
+                <p id="auc-value" class="big-metric">Loading...</p>
+                <p class="note">Threshold-independent performance</p>
+            </div>
+
+            <div class="card">
+                <h2>High Recall Mode</h2>
+                <p class="note">Threshold = 0.30</p>
+                <table class="metrics-table">
+                    <tr><td>Accuracy</td><td id="hr-acc">-</td></tr>
+                    <tr><td>Precision</td><td id="hr-prec">-</td></tr>
+                    <tr><td>Recall</td><td id="hr-rec">-</td></tr>
+                    <tr><td>F1-score</td><td id="hr-f1">-</td></tr>
+                    <tr><td>TN</td><td id="hr-tn">-</td></tr>
+                    <tr><td>FP</td><td id="hr-fp">-</td></tr>
+                    <tr><td>FN</td><td id="hr-fn">-</td></tr>
+                    <tr><td>TP</td><td id="hr-tp">-</td></tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>Balanced Mode</h2>
+                <p class="note">Threshold = 0.50</p>
+                <table class="metrics-table">
+                    <tr><td>Accuracy</td><td id="bal-acc">-</td></tr>
+                    <tr><td>Precision</td><td id="bal-prec">-</td></tr>
+                    <tr><td>Recall</td><td id="bal-rec">-</td></tr>
+                    <tr><td>F1-score</td><td id="bal-f1">-</td></tr>
+                    <tr><td>TN</td><td id="bal-tn">-</td></tr>
+                    <tr><td>FP</td><td id="bal-fp">-</td></tr>
+                    <tr><td>FN</td><td id="bal-fn">-</td></tr>
+                    <tr><td>TP</td><td id="bal-tp">-</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Threshold Trade-off</h2>
+            <p id="tradeoff-text" class="note">Loading interpretation...</p>
+        </div>
+
+        <div class="images">
+            <div class="card">
+                <h3>Confusion Matrix (Threshold = 0.30)</h3>
+                <img src="{{ cm_30 }}" alt="CM 0.30">
+            </div>
+
+            <div class="card">
+                <h3>Confusion Matrix (Threshold = 0.50)</h3>
+                <img src="{{ cm_50 }}" alt="CM 0.50">
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>ROC Curve</h3>
+            <img src="{{ roc }}" alt="ROC Curve" class="roc-image">
+        </div>
+
+        <div style="text-align:center; margin-top: 20px;">
+            <a href="/">
+                <button type="button">⬅ Back to Home</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function fmt(x) {
+            return Number(x).toFixed(3);
+        }
+
+        fetch("{{ metrics_path }}")
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("auc-value").textContent = fmt(data.roc_auc);
+
+                const hr = data.threshold_0_30;
+                const bal = data.threshold_0_50;
+
+                document.getElementById("hr-acc").textContent = fmt(hr.accuracy);
+                document.getElementById("hr-prec").textContent = fmt(hr.precision);
+                document.getElementById("hr-rec").textContent = fmt(hr.recall);
+                document.getElementById("hr-f1").textContent = fmt(hr.f1);
+                document.getElementById("hr-tn").textContent = hr.confusion_matrix.TN;
+                document.getElementById("hr-fp").textContent = hr.confusion_matrix.FP;
+                document.getElementById("hr-fn").textContent = hr.confusion_matrix.FN;
+                document.getElementById("hr-tp").textContent = hr.confusion_matrix.TP;
+
+                document.getElementById("bal-acc").textContent = fmt(bal.accuracy);
+                document.getElementById("bal-prec").textContent = fmt(bal.precision);
+                document.getElementById("bal-rec").textContent = fmt(bal.recall);
+                document.getElementById("bal-f1").textContent = fmt(bal.f1);
+                document.getElementById("bal-tn").textContent = bal.confusion_matrix.TN;
+                document.getElementById("bal-fp").textContent = bal.confusion_matrix.FP;
+                document.getElementById("bal-fn").textContent = bal.confusion_matrix.FN;
+                document.getElementById("bal-tp").textContent = bal.confusion_matrix.TP;
+
+                const tradeoff =
+                    `Threshold 0.30 maximizes recall (${fmt(hr.recall)}) and reduces missed pneumonia cases, `
+                    + `but increases false positives (${hr.confusion_matrix.FP}). `
+                    + `Threshold 0.50 improves precision (${fmt(bal.precision)}) and reduces false alarms `
+                    + `while slightly increasing false negatives (${bal.confusion_matrix.FN}).`;
+
+                document.getElementById("tradeoff-text").textContent = tradeoff;
+            })
+            .catch(() => {
+                document.getElementById("auc-value").textContent = "Could not load";
+                document.getElementById("tradeoff-text").textContent = "Metrics could not be loaded.";
+            });
+    </script>
+</body>
+</html>

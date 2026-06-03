@@ -1,0 +1,30 @@
+{
+  "model_path": "best_model.keras",
+  "roc_auc": 0.9508437431514354,
+  "threshold_0_30": {
+    "threshold": 0.3,
+    "accuracy": 0.8157051282051282,
+    "precision": 0.7846790890269151,
+    "recall": 0.9717948717948718,
+    "f1": 0.868270332187858,
+    "confusion_matrix": {
+      "TN": 130,
+      "FP": 104,
+      "FN": 11,
+      "TP": 379
+    }
+  },
+  "threshold_0_50": {
+    "threshold": 0.5,
+    "accuracy": 0.8701923076923077,
+    "precision": 0.8568129330254042,
+    "recall": 0.9512820512820512,
+    "f1": 0.9015795868772782,
+    "confusion_matrix": {
+      "TN": 172,
+      "FP": 62,
+      "FN": 19,
+      "TP": 371
+    }
+  }
+}

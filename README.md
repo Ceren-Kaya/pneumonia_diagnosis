@@ -64,7 +64,7 @@ The model is trained on the Chest X-ray Pneumonia Dataset:
 🔗 https://www.kaggle.com/datasets/paultimothymooney/chest-xray-pneumonia
 
 Structure:
-
+```text
 chest_xray/
 ├── train/
 │   ├── NORMAL/
@@ -75,7 +75,7 @@ chest_xray/
 └── val/
     ├── NORMAL/
     └── PNEUMONIA/
-
+```
 All images are resized to 224×224 and preprocessed using DenseNet preprocess_input.
 
 ## Model Architecture
